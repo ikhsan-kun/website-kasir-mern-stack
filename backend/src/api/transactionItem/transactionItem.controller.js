@@ -2,7 +2,7 @@ const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
 const { validationResult } = require("express-validator");
 
-const postProduct = async (req, res) => {
+const postTransactionItem = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({
@@ -11,21 +11,20 @@ const postProduct = async (req, res) => {
     });
   }
   
-  const { name, price, stock, category } = req.body;
+  const { transactionId, productId, quantity } = req.body;
   
   try {
-    const newProduct = await prisma.product.create({
+    const newTransactionItem = await prisma.transactionItem.create({
       data: {
-        name,
-        price,
-        stock,
-        category,
+        transactionId,
+        productId,
+        quantity,
       },
     });
     
     return res.status(201).json({
-      message: "Product created successfully",
-      product: newProduct,
+      message: "Transaction item created successfully",
+      transactionItem: newTransactionItem,
     });
   } catch (error) {
     console.error(error);
@@ -33,62 +32,76 @@ const postProduct = async (req, res) => {
   }
 }
 
-const getAllProducts = async (req, res) => {
+const getAllTransactionItems = async (req, res) => {
   try {
-    const products = await prisma.product.findMany();
-    return res.status(200).json(products);
+    const transactionItems = await prisma.transactionItem.findMany();
+    return res.status(200).json(transactionItems);
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Internal server error" });
   }
 }
 
-const getProductById = async (req, res) => {
+const getTransactionItemById = async (req, res) => {
   const { id } = req.params;
   
   try {
-    const product = await prisma.product.findUnique({
+    const transactionItem = await prisma.transactionItem.findUnique({
       where: { id: parseInt(id) },
     });
     
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
+    if (!transactionItem) {
+      return res.status(404).json({ message: "Transaction item not found" });
     }
     
-    return res.status(200).json(product);
+    return res.status(200).json(transactionItem);
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Internal server error" });
   }
-};
-
-const updateProduct = async (req, res) => {
+}
+const updateTransactionItem = async (req, res) => {
   const { id } = req.params;
   const errors = validationResult(req);
-  
   if (!errors.isEmpty()) {
     return res.status(400).json({
       message: "error validation",
       errors: errors.array(),
     });
   }
-  
-  const { name, price, stock, category } = req.body;
-  
+
+  const { transactionId, productId, quantity } = req.body;
+
   try {
-    const updatedProduct = await prisma.product.update({
+    const updatedTransactionItem = await prisma.transactionItem.update({
       where: { id: parseInt(id) },
       data: {
-        name,
-        price,
-        stock,
-        category,
+        transactionId,
+        productId,
+        quantity,
       },
     });
-    
+
     return res.status(200).json({
-      message: "Product updated successfully",
-      product: updatedProduct,
+      message: "Transaction item updated successfully",
+      transactionItem: updatedTransactionItem,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+}
+const deleteTransactionItem = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deletedTransactionItem = await prisma.transactionItem.delete({
+      where: { id: parseInt(id) },
+    });
+
+    return res.status(200).json({
+      message: "Transaction item deleted successfully",
+      transactionItem: deletedTransactionItem,
     });
   } catch (error) {
     console.error(error);
@@ -96,25 +109,10 @@ const updateProduct = async (req, res) => {
   }
 }
 
-const deleteProduct = async (req, res) => {
-  const { id } = req.params;
-  
-  try {
-    await prisma.product.delete({
-      where: { id: parseInt(id) },
-    });
-    
-    return res.status(200).json({ message: "Product deleted successfully" });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Internal server error" });
-  }
-};
-
 module.exports = {
-  postProduct,
-  getAllProducts,
-  getProductById,
-  updateProduct,
-  deleteProduct,
+  postTransactionItem,
+  getAllTransactionItems,
+  getTransactionItemById,
+  updateTransactionItem,
+  deleteTransactionItem,
 };

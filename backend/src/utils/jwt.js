@@ -1,4 +1,6 @@
+require("dotenv").config(); 
 const jwt = require("jsonwebtoken");
+
 
 const generateToken = (userId) => {
   const token = jwt.sign({ id: userId }, process.env.JWT_SECRET, {
@@ -12,7 +14,7 @@ const verifyToken = (token) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     return decoded;
   } catch (error) {
-    throw new Error("Invalid token");
+    throw new Error(`Invalid token: ${error.message}`);
   }
 };
 

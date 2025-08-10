@@ -1,8 +1,13 @@
-// server.js
+require("dotenv").config(); 
 const express = require("express");
 const cors = require("cors");
-require("dotenv").config(); 
+
+
+// Import routes
 const authRoutes = require("./api/auth/auth.routes.js");
+const productRoutes = require("./api/products/product.routes.js");
+const transactionRoutes = require("./api/transaction/transaction.routes.js");
+const transactionItemRoutes = require("./api/transactionItem/transactionItem.routes.js");
 
 const app = express();
 
@@ -13,9 +18,14 @@ app.use(express.urlencoded({ extended: false }));
 app.get("/", (req, res) => {
   res.json({ message: "Hello World" });
 });
-app.use("/auth", authRoutes);
 
-const PORT = process.env.PORT || 3000;
+// Use routes
+app.use("/api/auth", authRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/transactions", transactionRoutes);
+app.use("/api/transactionItems", transactionItemRoutes);
+
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
-  console.log(`✅ Server running on port http://localhost:${PORT}`);
+  console.log(`Server running on port http://localhost:${PORT}`);
 });

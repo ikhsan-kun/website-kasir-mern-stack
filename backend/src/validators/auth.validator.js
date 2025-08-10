@@ -1,17 +1,42 @@
 const { body } = require("express-validator");
 
-const loginValidator = [
-  body("email").isEmail().withMessage("Invalid email format"),
-  body("password").isLength({ min: 6 }).withMessage("Password must be at least 6 characters long"),
-];
-
-const registerValidator = [
-  body("username").notEmpty().withMessage("Username is required"),
-  body("email").isEmail().withMessage("Invalid email format"),
-  body("password").isLength({ min: 6 }).withMessage("Password must be at least 6 characters long"),
-];  
-
-module.exports = {
-    loginValidator,
-    registerValidator,
+const userValidator = {
+  login: [
+    body("username")
+      .notEmpty()
+      .withMessage("Username wajib diisi")
+      .isLength({ min: 3 })
+      .withMessage("Username minimal 3 karakter"),
+    body("password")
+      .notEmpty()
+      .withMessage("Password wajib diisi")
+      .isLength({ min: 8 })
+      .withMessage("Password minimal 8 karakter"),
+  ],
+  register: [
+    body("username")
+      .notEmpty()
+      .withMessage("Username wajib diisi")
+      .isLength({ min: 3 })
+      .withMessage("Username minimal 3 karakter"),
+    body("password")
+      .notEmpty()
+      .withMessage("Password wajib diisi")
+      .isLength({ min: 8 })
+      .withMessage("Password minimal 8 karakter"),
+    body("email")
+      .isEmail()
+      .withMessage("Email tidak valid")
+      .notEmpty()
+      .withMessage("Email wajib diisi"),
+  ],
+  verifyEmail: [
+    body("email")
+      .isEmail()
+      .withMessage("Email tidak valid")
+      .notEmpty()
+      .withMessage("Email wajib diisi"),
+  ],
 };
+
+module.exports = userValidator;

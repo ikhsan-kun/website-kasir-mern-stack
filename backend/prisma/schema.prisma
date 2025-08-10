@@ -1,15 +1,10 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "mongodb"
-  url      = env("DATABASE_URL")
+  url      = env("DATABASE_URL") 
 }
 
 model User {
@@ -17,7 +12,62 @@ model User {
   username  String   @unique
   email     String   @unique
   password  String
-  role      String   @default("kasir")
+  role      String   @default("kasir") // "admin" | "kasir"
+  isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Relasi
+  transactions Transaction[]
+
+  @@map("users")
+}
+
+model Product {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  price     Float
+  stock     Int      @default(0)
+  category  String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relasi
+  transactionItems TransactionItem[]
+
+  @@map("products")
+}
+
+model Transaction {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  code          String   @unique
+  kasirId       String   @db.ObjectId
+  customerName  String?
+  total         Float
+  paymentMethod String
+  paidAmount    Float
+  change        Float
+  createdAt     DateTime @default(now())
+
+  // Relasi
+  kasir         User   @relation(fields: [kasirId], references: [id])
+  items         TransactionItem[]
+
+  @@map("transactions")
+}
+
+model TransactionItem {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  transactionId String   @db.ObjectId
+  productId     String   @db.ObjectId
+  quantity      Int
+  price         Float
+  subtotal      Float
+
+  // Relasi
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+  product       Product     @relation(fields: [productId], references: [id])
+
+  @@map("transaction_items")
 }
