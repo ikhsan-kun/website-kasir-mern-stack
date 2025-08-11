@@ -1,4 +1,6 @@
 const { body } = require("express-validator");
+const { post } = require("../api/users/user.routes");
+const { updateUser } = require("../api/users/user.controller");
 
 const userValidator = {
   login: [

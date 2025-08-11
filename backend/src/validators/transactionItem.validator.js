@@ -46,4 +46,4 @@ const transactionItemValidator = {
   ],
 };
 
-module.exports = transactionItemValidator;
+module.exports = {transactionItemValidator};

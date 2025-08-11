@@ -43,7 +43,7 @@ const transactionValidator = {
       .isFloat({ min: 0 })
       .withMessage("Kembalian harus berupa angka dan minimal 0"),
   ],
-  updateTraansaction: [
+  updateTransaction: [
     body("code")
       .optional()
       .isString()
@@ -75,4 +75,4 @@ const transactionValidator = {
   ],
 };
 
-module.exports = transactionValidator;
+module.exports = { transactionValidator };

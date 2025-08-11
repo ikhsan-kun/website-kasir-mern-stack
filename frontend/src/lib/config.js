@@ -1,5 +1,5 @@
 const config = {
-  BASE_URL: process.env.BASE_URL || "http://localhost:3000",
+  BASE_URL: "http://localhost:3000",
 };
 
 const savetoken = (token) => {
@@ -13,3 +13,5 @@ const gettoken = () => {
 const removetoken = () => {
   localStorage.removeItem("token");
 };
+
+export { config, savetoken, gettoken, removetoken };
