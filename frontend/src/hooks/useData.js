@@ -1,50 +1,45 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
+import { CONFIG } from "@/lib/config";
 
-// Mock data - dalam implementasi nyata, ini akan diganti dengan API calls
-const mockUsers = [
-  { id: '1', username: 'admin1', email: 'admin@example.com', role: 'admin', isActive: true, createdAt: '2024-01-15' },
-  { id: '2', username: 'kasir1', email: 'kasir1@example.com', role: 'kasir', isActive: true, createdAt: '2024-01-16' },
-  { id: '3', username: 'kasir2', email: 'kasir2@example.com', role: 'kasir', isActive: false, createdAt: '2024-01-17' },
-];
+const ENDPOINTS = {
+  USERS: `${CONFIG.BASE_URL}/api/users`,
+  PRODUCTS: `${CONFIG.BASE_URL}/api/products`,
+  TRANSACTIONS: `${CONFIG.BASE_URL}/api/transactions`,
+}
 
-const mockProducts = [
-  { id: '1', name: 'Nasi Gudeg', price: 15000, stock: 50, category: 'Makanan', isActive: true },
-  { id: '2', name: 'Es Teh Manis', price: 5000, stock: 100, category: 'Minuman', isActive: true },
-  { id: '3', name: 'Ayam Bakar', price: 25000, stock: 30, category: 'Makanan', isActive: true },
-  { id: '4', name: 'Kopi Hitam', price: 8000, stock: 15, category: 'Minuman', isActive: true },
-];
-
-const mockTransactions = [
-  { id: '1', code: 'TRX001', kasirId: '2', customerName: 'Budi', total: 45000, paymentMethod: 'Cash', paidAmount: 50000, change: 5000, createdAt: '2024-08-11 10:30' },
-  { id: '2', code: 'TRX002', kasirId: '2', customerName: 'Sari', total: 20000, paymentMethod: 'QRIS', paidAmount: 20000, change: 0, createdAt: '2024-08-11 11:15' },
-  { id: '3', code: 'TRX003', kasirId: '1', customerName: 'Ahmad', total: 35000, paymentMethod: 'Debit', paidAmount: 35000, change: 0, createdAt: '2024-08-11 12:45' },
-];
-
-// Custom hook untuk manajemen data users
+// =============== USERS HOOK ===============
 export const useUsers = () => {
-  const [users, setUsers] = useState(mockUsers);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const fetchUsers = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/users`);
+      const data = await res.json();
+      setUsers(data);
+    } catch (err) {
+      setError("Gagal memuat user");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const addUser = async (userData) => {
     setLoading(true);
-    setError(null);
-    
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const newUser = {
-        ...userData,
-        id: String(users.length + 1),
-        createdAt: new Date().toISOString().split('T')[0]
-      };
-      
-      setUsers(prevUsers => [...prevUsers, newUser]);
-      return { success: true, data: newUser };
+      const res = await fetch(`${API_BASE}/users`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData),
+      });
+      const data = await res.json();
+      setUsers((prev) => [...prev, data]);
+      return { success: true, data };
     } catch (err) {
-      setError('Gagal menambahkan user');
-      return { success: false, error: err.message };
+      setError("Gagal menambahkan user");
+      return { success: false };
     } finally {
       setLoading(false);
     }
@@ -52,78 +47,79 @@ export const useUsers = () => {
 
   const updateUser = async (userData) => {
     setLoading(true);
-    setError(null);
-    
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setUsers(prevUsers => 
-        prevUsers.map(user => 
-          user.id === userData.id ? { ...user, ...userData } : user
-        )
+      const res = await fetch(`${API_BASE}/users/${userData.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData),
+      });
+      const data = await res.json();
+      setUsers((prev) =>
+        prev.map((u) => (u.id === data.id ? data : u))
       );
-      return { success: true, data: userData };
+      return { success: true, data };
     } catch (err) {
-      setError('Gagal mengupdate user');
-      return { success: false, error: err.message };
+      setError("Gagal mengupdate user");
+      return { success: false };
     } finally {
       setLoading(false);
     }
   };
 
-  const deleteUser = async (userId) => {
+  const deleteUser = async (id) => {
     setLoading(true);
-    setError(null);
-    
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      setUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
+      await fetch(`${API_BASE}/users/${id}`, { method: "DELETE" });
+      setUsers((prev) => prev.filter((u) => u.id !== id));
       return { success: true };
     } catch (err) {
-      setError('Gagal menghapus user');
-      return { success: false, error: err.message };
+      setError("Gagal menghapus user");
+      return { success: false };
     } finally {
       setLoading(false);
     }
   };
 
-  return {
-    users,
-    loading,
-    error,
-    addUser,
-    updateUser,
-    deleteUser
-  };
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  return { users, loading, error, addUser, updateUser, deleteUser, fetchUsers };
 };
 
-// Custom hook untuk manajemen data produk
+// =============== PRODUCTS HOOK ===============
 export const useProducts = () => {
-  const [products, setProducts] = useState(mockProducts);
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const fetchProducts = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/products`);
+      const data = await res.json();
+      setProducts(data);
+    } catch (err) {
+      setError("Gagal memuat produk");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const addProduct = async (productData) => {
     setLoading(true);
-    setError(null);
-    
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const newProduct = {
-        ...productData,
-        id: String(products.length + 1),
-        isActive: true
-      };
-      
-      setProducts(prevProducts => [...prevProducts, newProduct]);
-      return { success: true, data: newProduct };
+      const res = await fetch(`${API_BASE}/products`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(productData),
+      });
+      const data = await res.json();
+      setProducts((prev) => [...prev, data]);
+      return { success: true, data };
     } catch (err) {
-      setError('Gagal menambahkan produk');
-      return { success: false, error: err.message };
+      setError("Gagal menambahkan produk");
+      return { success: false };
     } finally {
       setLoading(false);
     }
@@ -131,100 +127,68 @@ export const useProducts = () => {
 
   const updateProduct = async (productData) => {
     setLoading(true);
-    setError(null);
-    
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setProducts(prevProducts =>
-        prevProducts.map(product =>
-          product.id === productData.id ? { ...product, ...productData } : product
-        )
+      const res = await fetch(`${API_BASE}/products/${productData.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(productData),
+      });
+      const data = await res.json();
+      setProducts((prev) =>
+        prev.map((p) => (p.id === data.id ? data : p))
       );
-      return { success: true, data: productData };
+      return { success: true, data };
     } catch (err) {
-      setError('Gagal mengupdate produk');
-      return { success: false, error: err.message };
+      setError("Gagal mengupdate produk");
+      return { success: false };
     } finally {
       setLoading(false);
     }
   };
 
-  const deleteProduct = async (productId) => {
+  const deleteProduct = async (id) => {
     setLoading(true);
-    setError(null);
-    
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      setProducts(prevProducts => prevProducts.filter(product => product.id !== productId));
+      await fetch(`${API_BASE}/products/${id}`, { method: "DELETE" });
+      setProducts((prev) => prev.filter((p) => p.id !== id));
       return { success: true };
     } catch (err) {
-      setError('Gagal menghapus produk');
-      return { success: false, error: err.message };
+      setError("Gagal menghapus produk");
+      return { success: false };
     } finally {
       setLoading(false);
     }
   };
 
-  return {
-    products,
-    loading,
-    error,
-    addProduct,
-    updateProduct,
-    deleteProduct
-  };
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  return { products, loading, error, addProduct, updateProduct, deleteProduct, fetchProducts };
 };
 
-// Custom hook untuk data transaksi
+// =============== TRANSACTIONS HOOK ===============
 export const useTransactions = () => {
-  const [transactions, setTransactions] = useState(mockTransactions);
+  const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const refreshTransactions = async () => {
+  const fetchTransactions = async () => {
     setLoading(true);
-    setError(null);
-    
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      // In real app, this would fetch from API
-      return { success: true };
+      const res = await fetch(`${API_BASE}/transactions`);
+      const data = await res.json();
+      setTransactions(data);
     } catch (err) {
-      setError('Gagal memuat transaksi');
-      return { success: false, error: err.message };
+      setError("Gagal memuat transaksi");
     } finally {
       setLoading(false);
     }
   };
 
-  return {
-    transactions,
-    loading,
-    error,
-    refreshTransactions
-  };
-};
-
-// Custom hook untuk statistik dashboard
-export const useStats = (users, products, transactions) => {
-  const [stats, setStats] = useState({
-    totalUsers: 0,
-    totalProducts: 0,
-    totalTransactions: 0,
-    totalRevenue: 0
-  });
-
   useEffect(() => {
-    setStats({
-      totalUsers: users.length,
-      totalProducts: products.length,
-      totalTransactions: transactions.length,
-      totalRevenue: transactions.reduce((sum, t) => sum + t.total, 0)
-    });
-  }, [users, products, transactions]);
+    fetchTransactions();
+  }, []);
 
-  return stats;
+  return { transactions, loading, error, fetchTransactions };
 };

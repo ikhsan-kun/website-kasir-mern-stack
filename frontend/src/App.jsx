@@ -1,12 +1,11 @@
+import { Routes, Route } from "react-router-dom";
 import "./index.css";
 import AdminDashboard from "./pages/AdminDashboard";
 
-function App() {
+export default function App() {
   return (
-    <>
-      <AdminDashboard />
-    </>
+    <Routes>
+      <Route path="/admin/*" element={<AdminDashboard />} />
+    </Routes>
   );
 }
-
-export default App;

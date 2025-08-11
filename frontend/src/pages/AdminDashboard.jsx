@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Plus, Filter, Download, Eye, Edit, Trash2 } from "lucide-react";
+import { Plus, Filter, Download } from "lucide-react";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 
 // Layout Components
 import Layout from "../components/layout/Layout";
@@ -87,7 +88,9 @@ const LowStockProducts = ({ products }) => (
 );
 
 const AdminDashboard = () => {
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const navigate = useNavigate();
+  const location = useLocation();
+  const currentPath = location.pathname.split("/").pop() || "dashboard";
 
   // User management state
   const {
@@ -101,7 +104,7 @@ const AdminDashboard = () => {
   const [selectedUser, setSelectedUser] = useState(null);
 
   // Product management
-  const { products, loading: productsLoading } = useProducts();
+  const { products } = useProducts();
 
   // Transactions
   const { transactions } = useTransactions();
@@ -132,40 +135,10 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleUserView = (user) => {
-    // Implement view user details
-    console.log("View user:", user);
-  };
-
-  // Product handlers (placeholder)
-  const handleProductView = (product) => {
-    console.log("View product:", product);
-  };
-
-  const handleProductEdit = (product) => {
-    console.log("Edit product:", product);
-  };
-
-  const handleProductDelete = (product) => {
-    if (window.confirm(`Hapus produk ${product.name}?`)) {
-      console.log("Delete product:", product);
-    }
-  };
-
-  // Transaction handlers (placeholder)
-  const handleTransactionView = (transaction) => {
-    console.log("View transaction:", transaction);
-  };
-
-  const handleTransactionDownload = (transaction) => {
-    console.log("Download receipt:", transaction);
-  };
-
   // Dashboard Content
   const DashboardContent = () => (
     <div className="space-y-6">
       <DashboardStats stats={stats} />
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <RecentTransactions transactions={transactions} />
         <LowStockProducts products={products} />
@@ -188,14 +161,12 @@ const AdminDashboard = () => {
           Tambah Pengguna
         </Button>
       </div>
-
       <UsersList
         users={users}
-        onView={handleUserView}
+        onView={() => {}}
         onEdit={handleUserEdit}
         onDelete={handleUserDelete}
       />
-
       <UserForm
         isOpen={userFormOpen}
         onClose={() => {
@@ -219,13 +190,7 @@ const AdminDashboard = () => {
           Tambah Produk
         </Button>
       </div>
-
-      <ProductsList
-        products={products}
-        onView={handleProductView}
-        onEdit={handleProductEdit}
-        onDelete={handleProductDelete}
-      />
+      <ProductsList products={products} onView={() => {}} onEdit={() => {}} onDelete={() => {}} />
     </div>
   );
 
@@ -245,34 +210,19 @@ const AdminDashboard = () => {
           </Button>
         </div>
       </div>
-
-      <TransactionsList
-        transactions={transactions}
-        onView={handleTransactionView}
-        onDownload={handleTransactionDownload}
-      />
+      <TransactionsList transactions={transactions} onView={() => {}} onDownload={() => {}} />
     </div>
   );
 
-  // Render content based on active tab
-  const renderContent = () => {
-    switch (activeTab) {
-      case "dashboard":
-        return <DashboardContent />;
-      case "users":
-        return <UsersContent />;
-      case "products":
-        return <ProductsContent />;
-      case "transactions":
-        return <TransactionsContent />;
-      default:
-        return <DashboardContent />;
-    }
-  };
-
   return (
-    <Layout activeTab={activeTab} setActiveTab={setActiveTab}>
-      {renderContent()}
+    <Layout activeTab={currentPath} setActiveTab={(tab) => navigate(`/admin/${tab}`)}>
+      <Routes>
+        <Route path="dashboard" element={<DashboardContent />} />
+        <Route path="users" element={<UsersContent />} />
+        <Route path="products" element={<ProductsContent />} />
+        <Route path="transactions" element={<TransactionsContent />} />
+        <Route path="*" element={<DashboardContent />} />
+      </Routes>
     </Layout>
   );
 };

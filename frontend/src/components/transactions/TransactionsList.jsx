@@ -1,6 +1,9 @@
 // src/components/transactions/TransactionsList.jsx
 import React from "react";
 import { Eye, Download } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "../common/Table";
+import { Button } from "@/components/ui/button";
 
 const TransactionsList = ({ transactions, onView, onDownload }) => {
   if (!transactions || transactions.length === 0) {
@@ -12,62 +15,61 @@ const TransactionsList = ({ transactions, onView, onDownload }) => {
   }
 
   return (
-    <div className="overflow-x-auto bg-white shadow rounded">
-      <table className="min-w-full text-sm text-left text-gray-600">
-        <thead className="bg-gray-100 text-gray-700 text-xs uppercase">
-          <tr>
-            <th className="px-6 py-3">Kode</th>
-            <th className="px-6 py-3">Pelanggan</th>
-            <th className="px-6 py-3">Total</th>
-            <th className="px-6 py-3">Metode Pembayaran</th>
-            <th className="px-6 py-3">Tanggal</th>
-            <th className="px-6 py-3 text-right">Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          {transactions.map((transaction) => (
-            <tr
-              key={transaction.id}
-              className="border-b last:border-none hover:bg-gray-50"
-            >
-              <td className="px-6 py-3 font-medium text-gray-800">
-                {transaction.code}
-              </td>
-              <td className="px-6 py-3">
-                {transaction.customerName || "Customer"}
-              </td>
-              <td className="px-6 py-3">
-                Rp {transaction.total.toLocaleString("id-ID")}
-              </td>
-              <td className="px-6 py-3">{transaction.paymentMethod}</td>
-              <td className="px-6 py-3">
-                {new Date(transaction.date).toLocaleDateString("id-ID", {
-                  day: "2-digit",
-                  month: "short",
-                  year: "numeric",
-                })}
-              </td>
-              <td className="px-6 py-3 flex items-center justify-end gap-2">
-                <button
-                  onClick={() => onView(transaction)}
-                  className="p-1 text-blue-600 hover:text-blue-800"
-                  title="Lihat Detail"
-                >
-                  <Eye className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => onDownload(transaction)}
-                  className="p-1 text-green-600 hover:text-green-800"
-                  title="Download"
-                >
-                  <Download className="w-4 h-4" />
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <Card>
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Kode</TableHead>
+              <TableHead>Pelanggan</TableHead>
+              <TableHead>Total</TableHead>
+              <TableHead>Metode Pembayaran</TableHead>
+              <TableHead>Tanggal</TableHead>
+              <TableHead className="text-right">Aksi</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {transactions.map((transaction) => (
+              <TableRow key={transaction.id}>
+                <TableCell className="font-medium">{transaction.code}</TableCell>
+                <TableCell>{transaction.customerName || "Customer"}</TableCell>
+                <TableCell>
+                  Rp {transaction.total.toLocaleString("id-ID")}
+                </TableCell>
+                <TableCell>{transaction.paymentMethod}</TableCell>
+                <TableCell>
+                  {new Date(transaction.date).toLocaleDateString("id-ID", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex items-center justify-end space-x-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onView(transaction)}
+                      title="Lihat Detail"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onDownload(transaction)}
+                      title="Download"
+                    >
+                      <Download className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   );
 };
 
