@@ -1,10 +1,10 @@
 import "./index.css";
-import Login from "@/app/login"
+import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
   return (
     <>
-      <Login/>
+      <AdminDashboard />
     </>
   );
 }
